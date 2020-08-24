@@ -1,24 +1,99 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useCallback } from 'react';
 
 function App() {
+  const [newTodo, setNewTodo] = useState('');
+  const [todos, setTodos] = useState([]);
+
+  const onNewTodoChange = useCallback((event) => {
+    setNewTodo(event.target.value);
+  }, []);
+
+  const formSubmitted = useCallback((event) => {
+    event.preventDefault();
+    if (!newTodo.trim())
+      return;
+    setTodos(
+      [
+        ...todos,
+        {
+          id: todos.length ? todos[todos.length - 1].id + 1 : 1,
+          content: newTodo,
+          done: false
+        }
+      ]
+    );
+    setNewTodo('');
+  }, [todos, newTodo]);
+
+  const toggleDone = useCallback((todo, index) => () => {
+    const newTodos = [...todos]; // Create a copy of the array containing the todos.
+    // if const a = array it would create a pointer to the same array. Reference.
+    // Instead using a spread operator creates a copy.
+    // Removes the todo from the array and replaces it with a copy modified.
+    newTodos.splice(index, 1, {
+      ...todo,
+      done: !todo.done
+    });
+    setTodos(newTodos);
+  }, [todos]);
+
+  const removeTodo = useCallback((_, index) => () => {
+    const newTodos = [...todos];
+    newTodos.splice(index, 1);
+    setTodos(newTodos);
+  }, [todos]);
+
+  const markAllDone = useCallback(() => {
+    const updatedTodos = todos.map((todo) => (
+      {
+        ...todo,
+        done: true
+      }
+    ));
+    setTodos(updatedTodos);
+  }, [todos]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div id="app">
+      <h2>Todo List App ✔🌮</h2>
+      <form onSubmit={formSubmitted}>
+        <label htmlFor="newTodo">Enter a todo</label>
+        <input
+          id="newTodo"
+          name="newTodo"
+          value={newTodo}
+          onChange={onNewTodoChange}
+        />
+        <button
+          type="submit"
+          id="addTodo">
+          Add Todo
+        </button>
+      </form>
+      <button
+        id="allDone"
+        onClick={markAllDone}>Mark all as Done
+      </button>
+      <ul>
+        {
+          todos.map((todo, index) => (
+            <li key={todo.id}>
+              <input
+                type="checkbox"
+                checked={todo.done}
+                onChange={toggleDone(todo, index)}
+              />
+              <span className={todo.done ? 'done' : ''}>
+                {todo.content}
+              </span>
+              <button
+                className="removeTodo"
+                onClick={removeTodo(todo, index)}>x
+              </button>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   );
 }
