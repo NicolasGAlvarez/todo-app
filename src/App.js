@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import TodoList from './components/TodoList';
 
 function App() {
   const [newTodo, setNewTodo] = useState('');
@@ -55,7 +56,7 @@ function App() {
 
   return (
     <div id="app">
-      <h2>Todo List App ✔🌮</h2>
+      <h2>Todo List App</h2>
       <form onSubmit={formSubmitted}>
         <label htmlFor="newTodo">Enter a todo</label>
         <input
@@ -74,26 +75,11 @@ function App() {
         id="allDone"
         onClick={markAllDone}>Mark all as Done
       </button>
-      <ul>
-        {
-          todos.map((todo, index) => (
-            <li key={todo.id}>
-              <input
-                type="checkbox"
-                checked={todo.done}
-                onChange={toggleDone(todo, index)}
-              />
-              <span className={todo.done ? 'done' : ''}>
-                {todo.content}
-              </span>
-              <button
-                className="removeTodo"
-                onClick={removeTodo(todo, index)}>x
-              </button>
-            </li>
-          ))
-        }
-      </ul>
+      <TodoList
+        todos={todos}
+        toggleDone={toggleDone}
+        removeTodo={removeTodo}
+      />
     </div>
   );
 }
